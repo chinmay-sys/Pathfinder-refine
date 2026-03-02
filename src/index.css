@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Brand colors - Modern dark theme */
+    --midnight: 240 29% 15%;
+    --electric-purple: 270 100% 50%;
+    --neon-coral: 0 100% 71%;
+    --mint-green: 162 100% 48%;
+
+    /* Base colors */
+    --background: 240 29% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 20% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 25% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 270 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 25% 18%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 20% 20%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 162 100% 48%;
+    --accent-foreground: 240 29% 8%;
+
+    --destructive: 0 100% 71%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 20% 20%;
+    --input: 240 20% 18%;
+    --ring: 270 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(270 100% 50% / 0.8), hsl(162 100% 48% / 0.8));
+    --gradient-hero: linear-gradient(135deg, hsl(240 29% 8%), hsl(240 25% 12%));
+    --gradient-card: linear-gradient(180deg, hsl(240 20% 12% / 0.8), hsl(240 25% 10% / 0.8));
+
+    /* Glassmorphism */
+    --glass-bg: hsl(240 20% 12% / 0.6);
+    --glass-border: hsl(0 0% 100% / 0.1);
+
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(270 100% 50% / 0.3);
+    --shadow-card: 0 10px 30px hsl(0 0% 0% / 0.3);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-effect {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .hover-lift {
+    transition: var(--transition-smooth);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card);
+  }
+}
+
