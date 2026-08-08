@@ -20,8 +20,12 @@ import {
   RotateCcw,
   ExternalLink,
   Save,
+  Bookmark,
 } from "lucide-react";
 import { toast } from "sonner";
+import { SavedCareersModal } from "./SavedCareersModal";
+import { LearningStepItem } from "./LearningStepItem";
+import { SkillBadgeItem } from "./SkillBadgeItem";
 
 interface CareerResultsProps {
   results: {
@@ -44,6 +48,7 @@ interface CareerResultsProps {
 const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
   const [selectedCareer, setSelectedCareer] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
 
   const handleViewRoadmap = (career: any) => {
     setSelectedCareer(career);
@@ -68,6 +73,7 @@ const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
 
       savedCareers.push(careerWithTimestamp);
       localStorage.setItem("savedCareers", JSON.stringify(savedCareers));
+      window.dispatchEvent(new Event("savedCareersUpdated"));
       toast.success(`${career.title} saved successfully!`);
     } catch (error) {
       console.error("Error saving career:", error);
@@ -155,18 +161,12 @@ const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
                 {/* Skills Required */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-foreground">
-                    <Target className="w-4 h-4" />
+                    <Target className="w-4 h-4 text-primary" />
                     <span className="font-heading font-semibold">Skills Required</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {career.skills.map((skill, skillIndex) => (
-                      <Badge
-                        key={skillIndex}
-                        variant="secondary"
-                        className="bg-secondary/50 text-foreground border-border/50"
-                      >
-                        {skill}
-                      </Badge>
+                      <SkillBadgeItem key={skillIndex} skill={skill} />
                     ))}
                   </div>
                 </div>
@@ -174,20 +174,18 @@ const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
                 {/* Learning Path */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-foreground">
-                    <BookOpen className="w-4 h-4" />
+                    <BookOpen className="w-4 h-4 text-accent" />
                     <span className="font-heading font-semibold">Learning Roadmap</span>
+                    <span className="text-xs text-muted-foreground ml-auto">(Click any step to open tutorials)</span>
                   </div>
                   <div className="grid gap-2">
                     {career.learningPath.map((step, stepIndex) => (
-                      <div
+                      <LearningStepItem
                         key={stepIndex}
-                        className="flex items-start gap-3 p-3 bg-secondary/30 rounded-lg"
-                      >
-                        <div className="flex-shrink-0 w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-xs font-semibold text-primary">
-                          {stepIndex + 1}
-                        </div>
-                        <p className="text-sm text-muted-foreground flex-1">{step}</p>
-                      </div>
+                        step={step}
+                        index={stepIndex}
+                        careerTitle={career.title}
+                      />
                     ))}
                   </div>
                 </div>
@@ -241,8 +239,8 @@ const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
           </Card>
         )}
 
-        {/* Action Button */}
-        <div className="flex justify-center pt-4">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
           <Button
             onClick={onStartOver}
             variant="outline"
@@ -251,6 +249,14 @@ const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
           >
             <RotateCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
             Take Another Assessment
+          </Button>
+          <Button
+            onClick={() => setIsSavedModalOpen(true)}
+            size="lg"
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Bookmark className="w-4 h-4 mr-2" />
+            View Saved Careers
           </Button>
         </div>
       </div>
@@ -315,40 +321,29 @@ const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedCareer.skills.map((skill: string, index: number) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="bg-primary/20 text-primary border-primary/30"
-                    >
-                      {skill}
-                    </Badge>
+                    <SkillBadgeItem key={index} skill={skill} />
                   ))}
                 </div>
               </div>
 
               {/* Detailed Learning Path */}
               <div className="space-y-3">
-                <h3 className="font-heading font-semibold text-lg flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-accent" />
-                  Detailed Learning Roadmap
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-heading font-semibold text-lg flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-accent" />
+                    Detailed Learning Roadmap
+                  </h3>
+                  <span className="text-xs text-muted-foreground">(Click any step to open video tutorials)</span>
+                </div>
                 <div className="space-y-3">
                   {selectedCareer.learningPath.map((step: string, index: number) => (
-                    <div
+                    <LearningStepItem
                       key={index}
-                      className="flex gap-4 p-4 bg-secondary/50 rounded-lg border border-border/30"
-                    >
-                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-primary-foreground font-bold">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        <p className="text-foreground font-medium">{step}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3" />
-                          <span>Estimated: {2 + index * 2}-{4 + index * 2} months</span>
-                        </div>
-                      </div>
-                    </div>
+                      step={step}
+                      index={index}
+                      careerTitle={selectedCareer.title}
+                      estimatedTime={`${2 + index * 2}-${4 + index * 2} months`}
+                    />
                   ))}
                 </div>
               </div>
@@ -374,6 +369,12 @@ const CareerResults = ({ results, onStartOver }: CareerResultsProps) => {
           )}
         </DialogContent>
       </Dialog>
+
+      <SavedCareersModal
+        isOpen={isSavedModalOpen}
+        onOpenChange={setIsSavedModalOpen}
+        onNavigateHome={onStartOver}
+      />
     </div>
   );
 };
