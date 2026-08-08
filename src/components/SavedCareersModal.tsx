@@ -13,7 +13,7 @@ import {
   Bookmark,
   Trash2,
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   BookOpen,
   ExternalLink,
   Sparkles,
@@ -53,7 +53,6 @@ export const SavedCareersModal = ({
     }
   }, [isOpen]);
 
-  // Listen for saved careers updates
   useEffect(() => {
     const handleStorageChange = () => {
       loadSavedCareers();
@@ -192,10 +191,10 @@ export const SavedCareersModal = ({
                         <span>Growth: <strong>{career.growthRate}%</strong></span>
                       </div>
                       <div className="p-2 bg-secondary/30 rounded flex items-center gap-1.5">
-                        <DollarSign className="w-3.5 h-3.5 text-mint-green" />
+                        <IndianRupee className="w-3.5 h-3.5 text-mint-green" />
                         <span>Salary: <strong>{career.salary}</strong></span>
                       </div>
-                      <div className="p-2 bg-secondary/30 rounded flex items-center gap-1.5">
+                        <div className="p-2 bg-secondary/30 rounded flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-neon-coral" />
                         <span>Impact: <strong>{career.impact}</strong></span>
                       </div>
@@ -247,7 +246,7 @@ export const SavedCareersModal = ({
                     <span className="text-xs text-muted-foreground">(Click any step for tutorials)</span>
                   </div>
                   <div className="space-y-2">
-                    {selectedCareer.learningPath.map((step: string, index: number) => (
+                    {selectedCareer.learningPath.map((step: any, index: number) => (
                       <LearningStepItem
                         key={index}
                         step={step}

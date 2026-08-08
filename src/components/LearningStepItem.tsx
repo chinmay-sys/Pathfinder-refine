@@ -3,40 +3,49 @@ import {
   ExternalLink,
   Youtube,
   Search,
-  BookOpen,
   ChevronDown,
   ChevronUp,
   FolderGit2,
   CheckCircle2,
   Sparkles,
   Clock,
+  Target,
+  Layers,
+  BookOpen,
+  Award
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-export interface DetailedStep {
-  title: string;
-  duration?: string;
-  description?: string;
-  topics?: string[];
-  projectIdea?: string;
-  checkpoint?: string;
-}
+import { RoadmapStep, RoadmapResource } from "@/types/career";
 
 interface LearningStepItemProps {
-  step: string | DetailedStep;
+  step: string | RoadmapStep;
   index: number;
   careerTitle?: string;
   estimatedTime?: string;
 }
 
-export function enrichStep(stepInput: string | DetailedStep, careerTitle?: string): DetailedStep {
+export function enrichStep(stepInput: string | RoadmapStep, index: number, careerTitle?: string): RoadmapStep {
   if (typeof stepInput === "object" && stepInput !== null && stepInput.title) {
-    return stepInput;
+    return {
+      phase: stepInput.phase || index + 1,
+      title: stepInput.title,
+      description: stepInput.description || "Focus on mastering core skills in this phase through practical exercises.",
+      duration: stepInput.duration || "3-4 weeks",
+      skills: Array.isArray(stepInput.skills) ? stepInput.skills : [],
+      difficulty: stepInput.difficulty || (index === 0 ? "Beginner" : index < 3 ? "Intermediate" : "Advanced"),
+      reason: stepInput.reason || `Essential step to build job-ready competence for ${careerTitle || "your target role"}.`,
+      prerequisites: Array.isArray(stepInput.prerequisites) ? stepInput.prerequisites : [],
+      project: stepInput.project || `Build a practical hands-on project demonstrating ${stepInput.title}.`,
+      resources: Array.isArray(stepInput.resources) && stepInput.resources.length > 0 ? stepInput.resources : [
+        { title: `${stepInput.title} Guide`, type: "Documentation" },
+        { title: `${stepInput.title} Tutorials`, type: "Video Tutorial" }
+      ],
+      outcome: stepInput.outcome || `Demonstrable proficiency in ${stepInput.title}.`
+    };
   }
 
   const text = typeof stepInput === "string" ? stepInput : String(stepInput || "");
-
-  let duration = "";
+  let duration = "3-4 weeks";
   let title = text;
 
   const durationMatch = text.match(/^(month[s]?\s*\d+(?:-\d+)?|week[s]?\s*\d+(?:-\d+)?|phase\s*\d+):?\s*(.*)/i);
@@ -45,52 +54,30 @@ export function enrichStep(stepInput: string | DetailedStep, careerTitle?: strin
     title = durationMatch[2];
   }
 
-  const topics: string[] = [];
   const lower = title.toLowerCase();
-
-  if (lower.includes("javascript") || lower.includes("js")) {
-    topics.push("ES6+ Syntax", "DOM Manipulation", "Promises & Async/Await", "Fetch API");
-  }
-  if (lower.includes("react") || lower.includes("frontend")) {
-    topics.push("JSX Components", "React Hooks (useState, useEffect)", "State Management", "Tailwind CSS");
-  }
-  if (lower.includes("python") || lower.includes("data analysis")) {
-    topics.push("Python Core", "Pandas & NumPy", "Data Cleaning", "Data Visualization");
-  }
-  if (lower.includes("sql") || lower.includes("database")) {
-    topics.push("SELECT & WHERE Queries", "JOIN Operations", "Aggregations", "Database Indexing");
-  }
-  if (lower.includes("figma") || lower.includes("ux") || lower.includes("design")) {
-    topics.push("Wireframing", "User Personas", "Figma Auto-Layout", "Interactive Prototyping");
-  }
-  if (lower.includes("algorithm") || lower.includes("data structure")) {
-    topics.push("Arrays & Strings", "Sorting & Searching", "Recursion", "Big O Notation");
-  }
-  if (lower.includes("project") || lower.includes("portfolio")) {
-    topics.push("Git & GitHub Workflow", "Deployment (Vercel/Netlify)", "Code Documentation", "Responsive Design");
-  }
-  if (lower.includes("job") || lower.includes("apply") || lower.includes("networking")) {
-    topics.push("Resume Optimization", "LinkedIn Branding", "Technical Mock Interviews", "System Design Q&A");
-  }
-
-  if (topics.length === 0) {
-    topics.push("Core Foundations", "Hands-on Practice", "Key Concepts", "Real-world Applications");
-  }
-
-  let projectIdea = `Build a real-world project focused on ${title.toLowerCase()}`;
-  if (lower.includes("javascript")) projectIdea = "Build an Interactive Dynamic Web App using Fetch API & LocalStorage";
-  else if (lower.includes("react")) projectIdea = "Create a Multi-page E-Commerce Dashboard with React Hooks & Tailwind";
-  else if (lower.includes("python") || lower.includes("data")) projectIdea = "Perform exploratory data analysis on a Kaggle dataset & visualize insights";
-  else if (lower.includes("figma") || lower.includes("design")) projectIdea = "Design a complete Mobile App prototype with interactive micro-interactions";
-  else if (lower.includes("portfolio")) projectIdea = "Publish 3 completed projects with live demo links and source code on GitHub";
+  const skills: string[] = [];
+  if (lower.includes("react")) skills.push("React JSX", "React Hooks", "TypeScript");
+  else if (lower.includes("node") || lower.includes("backend")) skills.push("Node.js", "Express.js", "REST APIs");
+  else if (lower.includes("sql") || lower.includes("database")) skills.push("SQL", "PostgreSQL", "Data Modeling");
+  else if (lower.includes("product strategy")) skills.push("Product Strategy", "OKRs", "RICE Prioritization");
+  else if (lower.includes("analytics")) skills.push("Product Metrics", "A/B Testing", "Funnels");
+  else skills.push("Core Concepts", "Best Practices");
 
   return {
+    phase: index + 1,
     title: title || text,
-    duration: duration || `Phase ${1}`,
-    description: `Focus on mastering ${title.toLowerCase()} through hands-on coding exercises, reading documentation, and building real-world projects.`,
-    topics,
-    projectIdea,
-    checkpoint: `Complete phase exercises and commit your progress to GitHub.`,
+    description: `Master ${title.toLowerCase()} through structured lessons, documentation, and real-world project application.`,
+    duration: duration,
+    skills: skills,
+    difficulty: index === 0 ? "Beginner" : index < 4 ? "Intermediate" : "Advanced",
+    reason: `Prioritized to fill your identified skill gap in ${title}.`,
+    prerequisites: index > 0 ? ["Previous phase concepts"] : ["Basic problem solving"],
+    project: `Build a real-world deliverable focused on ${title.toLowerCase()}`,
+    resources: [
+      { title: `${title} Official Documentation`, type: "Documentation" },
+      { title: `${title} Crash Course`, type: "Video Tutorial" }
+    ],
+    outcome: `Complete practical project and document your progress on GitHub / Portfolio.`
   };
 }
 
@@ -101,15 +88,13 @@ export const LearningStepItem = ({
   estimatedTime,
 }: LearningStepItemProps) => {
   const [isExpanded, setIsExpanded] = useState(index === 0); // Expand 1st step by default
-  const detailed = enrichStep(step, careerTitle);
+  const detailedStep = enrichStep(step, index, careerTitle);
 
-  const youtubeUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent("learn " + detailed.title + (careerTitle ? " " + careerTitle : ""))}`;
-  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent("learn " + detailed.title + " tutorial documentation")}`;
-  const freeCodeCampUrl = `https://www.google.com/search?q=${encodeURIComponent("freecodecamp " + detailed.title)}`;
-  const roadmapUrl = `https://roadmap.sh`;
+  const youtubeUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent("learn " + detailedStep.title + (careerTitle ? " " + careerTitle : ""))}`;
+  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent("learn " + detailedStep.title + " tutorial documentation")}`;
 
-  const handleStepClick = () => {
-    window.open(youtubeUrl, "_blank", "noopener,noreferrer");
+  const handleStepHeaderClick = () => {
+    setIsExpanded(!isExpanded);
   };
 
   const handleTopicClick = (e: React.MouseEvent, topic: string) => {
@@ -118,44 +103,65 @@ export const LearningStepItem = ({
     window.open(topicUrl, "_blank", "noopener,noreferrer");
   };
 
+  const getDifficultyColor = (diff: string) => {
+    switch (diff) {
+      case "Beginner":
+        return "bg-emerald-500/10 border-emerald-500/30 text-emerald-400";
+      case "Intermediate":
+        return "bg-sky-500/10 border-sky-500/30 text-sky-400";
+      case "Advanced":
+        return "bg-amber-500/10 border-amber-500/30 text-amber-400";
+      default:
+        return "bg-primary/10 border-primary/30 text-primary";
+    }
+  };
+
   return (
     <div className="group relative flex flex-col bg-secondary/30 hover:bg-secondary/50 rounded-xl border border-border/40 hover:border-primary/50 transition-all duration-200 overflow-hidden">
       {/* Header Row */}
-      <div className="p-4 flex items-start justify-between gap-3">
-        <div
-          onClick={handleStepClick}
-          className="flex items-start gap-3 flex-1 cursor-pointer"
-        >
+      <div 
+        onClick={handleStepHeaderClick}
+        className="p-4 flex items-start justify-between gap-3 cursor-pointer select-none"
+      >
+        <div className="flex items-start gap-3 flex-1">
+          {/* Phase Badge */}
           <div className="flex-shrink-0 w-8 h-8 bg-primary/20 group-hover:bg-primary group-hover:text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold text-primary transition-colors mt-0.5">
-            {index + 1}
+            {detailedStep.phase}
           </div>
-          <div className="flex-1 space-y-1">
+
+          <div className="flex-1 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <h4 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
-                <span>{detailed.title}</span>
-                <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                <span>Phase {detailedStep.phase}: {detailedStep.title}</span>
               </h4>
-              {(detailed.duration || estimatedTime) && (
+              
+              {/* Difficulty Badge */}
+              <Badge variant="outline" className={`text-[10px] px-2 py-0.5 rounded-md font-medium border ${getDifficultyColor(detailedStep.difficulty)}`}>
+                {detailedStep.difficulty}
+              </Badge>
+
+              {/* Duration Badge */}
+              {(detailedStep.duration || estimatedTime) && (
                 <Badge variant="outline" className="text-[11px] bg-primary/10 border-primary/30 text-primary">
                   <Clock className="w-3 h-3 mr-1" />
-                  {detailed.duration || estimatedTime}
+                  {detailedStep.duration || estimatedTime}
                 </Badge>
               )}
             </div>
+
             <p className="text-xs text-muted-foreground line-clamp-1">
-              {detailed.description}
+              {detailedStep.description}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Quick External Links */}
-          <div className="hidden sm:flex items-center gap-1.5">
+          {/* External Quick Links */}
+          <div className="hidden sm:flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
             <a
               href={youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-md border border-red-500/20 transition-colors"
               title="Watch YouTube Video Tutorials"
             >
@@ -166,9 +172,8 @@ export const LearningStepItem = ({
               href={googleUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-md border border-blue-500/20 transition-colors"
-              title="Search Google Tutorials & Docs"
+              title="Search Documentation & Specs"
             >
               <Search className="w-3.5 h-3.5 text-blue-400" />
               <span>Docs</span>
@@ -176,7 +181,6 @@ export const LearningStepItem = ({
           </div>
 
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
             className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-md transition-colors"
             title={isExpanded ? "Collapse Details" : "Expand Details"}
           >
@@ -191,29 +195,47 @@ export const LearningStepItem = ({
 
       {/* Expanded Details Section */}
       {isExpanded && (
-        <div className="px-4 pb-4 pt-1 border-t border-border/20 space-y-3 bg-background/40 animate-fade-in text-xs">
-          {/* Detailed Summary */}
-          <p className="text-muted-foreground leading-relaxed">
-            {detailed.description}
-          </p>
+        <div className="px-4 pb-4 pt-2 border-t border-border/20 space-y-3.5 bg-background/40 animate-fade-in text-xs">
+          
+          {/* Why this step is included (Reason / Personalization) */}
+          {detailedStep.reason && (
+            <div className="p-2.5 bg-primary/10 rounded-lg border border-primary/20 flex items-start gap-2 text-foreground">
+              <Target className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <span className="font-semibold text-primary block">Why This Step is in Your Personalized Roadmap:</span>
+                <span className="text-muted-foreground text-xs">{detailedStep.reason}</span>
+              </div>
+            </div>
+          )}
 
-          {/* Sub-topics / Modules */}
-          {detailed.topics && detailed.topics.length > 0 && (
+          {/* Description */}
+          <div className="space-y-1">
+            <span className="font-semibold text-foreground flex items-center gap-1">
+              <BookOpen className="w-3.5 h-3.5 text-accent" />
+              Phase Description:
+            </span>
+            <p className="text-muted-foreground leading-relaxed">
+              {detailedStep.description}
+            </p>
+          </div>
+
+          {/* Skills Covered in this Phase */}
+          {detailedStep.skills && detailedStep.skills.length > 0 && (
             <div className="space-y-1.5">
               <span className="font-semibold text-foreground flex items-center gap-1 text-xs">
                 <Sparkles className="w-3.5 h-3.5 text-accent" />
-                Key Modules & Concepts to Master:
+                Target Competencies & Tools:
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {detailed.topics.map((topic, tIdx) => (
+                {detailedStep.skills.map((skillItem, tIdx) => (
                   <Badge
                     key={tIdx}
-                    onClick={(e) => handleTopicClick(e, topic)}
+                    onClick={(e) => handleTopicClick(e, skillItem)}
                     variant="secondary"
                     className="cursor-pointer hover:bg-primary/20 hover:text-primary border border-border/40 text-[11px] py-0.5 px-2 transition-colors flex items-center gap-1"
-                    title={`Click to search tutorials for ${topic}`}
+                    title={`Click to search tutorials for ${skillItem}`}
                   >
-                    <span>{topic}</span>
+                    <span>{skillItem}</span>
                     <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                   </Badge>
                 ))}
@@ -221,30 +243,75 @@ export const LearningStepItem = ({
             </div>
           )}
 
-          {/* Hands-on Project Idea */}
-          {detailed.projectIdea && (
-            <div className="p-2.5 bg-primary/10 rounded-lg border border-primary/20 flex items-start gap-2">
-              <FolderGit2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <span className="font-semibold text-primary block">Hands-on Project Deliverable:</span>
-                <span className="text-muted-foreground">{detailed.projectIdea}</span>
+          {/* Prerequisites */}
+          {detailedStep.prerequisites && detailedStep.prerequisites.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-muted-foreground flex items-center gap-1">
+                <Layers className="w-3.5 h-3.5 text-muted-foreground" />
+                Prerequisites:
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {detailedStep.prerequisites.map((prereq, pIdx) => (
+                  <span key={pIdx} className="text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded border border-border/30">
+                    {prereq}
+                  </span>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Milestone Checkpoint */}
-          {detailed.checkpoint && (
+          {/* Hands-on Practical Project */}
+          {detailedStep.project && (
             <div className="p-2.5 bg-accent/10 rounded-lg border border-accent/20 flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+              <FolderGit2 className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
               <div>
-                <span className="font-semibold text-accent block">Phase Checkpoint:</span>
-                <span className="text-muted-foreground">{detailed.checkpoint}</span>
+                <span className="font-semibold text-accent block">Practical Project Deliverable:</span>
+                <span className="text-muted-foreground">{detailedStep.project}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Milestone Outcome */}
+          {detailedStep.outcome && (
+            <div className="p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20 flex items-start gap-2">
+              <Award className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <span className="font-semibold text-emerald-400 block">Expected Outcome / Milestone:</span>
+                <span className="text-muted-foreground">{detailedStep.outcome}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Resources */}
+          {detailedStep.resources && detailedStep.resources.length > 0 && (
+            <div className="space-y-1.5 pt-1">
+              <span className="font-semibold text-foreground flex items-center gap-1">
+                <ExternalLink className="w-3.5 h-3.5 text-primary" />
+                Recommended Learning Resources:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {detailedStep.resources.map((res: RoadmapResource, rIdx: number) => {
+                  const resSearchUrl = res.url || `https://www.google.com/search?q=${encodeURIComponent(res.title + " " + (careerTitle || ""))}`;
+                  return (
+                    <a
+                      key={rIdx}
+                      href={resSearchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 bg-secondary/60 hover:bg-secondary text-foreground rounded border border-border/40 transition-colors"
+                    >
+                      <span className="font-medium">{res.title}</span>
+                      <span className="text-[10px] opacity-60">({res.type})</span>
+                      <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* Mobile External Buttons */}
-          <div className="flex sm:hidden items-center gap-2 pt-1">
+          <div className="flex sm:hidden items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
             <a
               href={youtubeUrl}
               target="_blank"
@@ -261,9 +328,10 @@ export const LearningStepItem = ({
               className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-medium py-1.5 bg-blue-500/10 text-blue-400 rounded-md border border-blue-500/20"
             >
               <Search className="w-3.5 h-3.5 text-blue-400" />
-              <span>Google Docs</span>
+              <span>Google Specs</span>
             </a>
           </div>
+
         </div>
       )}
     </div>
